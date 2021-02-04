@@ -95,7 +95,7 @@ func parseFileDates(files []*RedisFile) {
 
 func initAwsBucket() {
 	expiration := time.Now().Add(time.Hour * 1)
-	auth, err := aws.GetAuth(config.AccessKey, config.SecretKey, "", expiration) //"" = token which isn't needed
+	auth, err := aws.GetAuth("", "", "", expiration) //"" = token which isn't needed
 	if err != nil {
 		panic(err)
 	}
