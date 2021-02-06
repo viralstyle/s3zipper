@@ -21,12 +21,13 @@ import (
 )
 
 type Configuration struct {
-	AccessKey          string
-	SecretKey          string
-	Bucket             string
-	Region             string
-	RedisServerAndPort string
-	Port               int
+	AccessKey   string
+	SecretKey   string
+	Bucket      string
+	Region      string
+	RedisServer string
+	RedisPort   int
+	Port        int
 }
 
 var config = Configuration{}
@@ -108,7 +109,7 @@ func InitRedis() {
 		MaxIdle:     10,
 		IdleTimeout: 1 * time.Second,
 		Dial: func() (redigo.Conn, error) {
-			return redigo.Dial("tcp", config.RedisServerAndPort)
+			return redigo.Dial("tcp", fmt.Sprintf("%s%s%d", config.RedisServer, ":", config.RedisPort))
 		},
 		TestOnBorrow: func(c redigo.Conn, t time.Time) (err error) {
 			if time.Since(t) < time.Minute {
@@ -139,6 +140,10 @@ func getFilesFromRedis(ref string) (files []*RedisFile, err error) {
 
 	// Get the value from Redis
 	result, err := redis.Do("GET", "zip:"+ref)
+	if err != nil {
+		return
+	}
+
 	if result == nil {
 		err = errors.New("Access Denied (sorry your link has timed out)")
 		return
